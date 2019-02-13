@@ -1,11 +1,16 @@
 from tkinter import*
 from math import*
 
+N = 11
+
 #un Point est decrit par ses coordonnes X et Y
 class Point:
 	def __init__(self,x,y):
 		self.x = x;
 		self.y = y;
+
+	def distance(self,p):
+		return sqrt(pow((self.x - p.x),2) + pow((self.y - p.y),2))
 
 # un Hexagone est decrit par les coordonnes de ses 6 points
 class Hexagone:
@@ -28,10 +33,12 @@ class Hexagone:
 		points.append(Point(points[4].x-longueur*cos(120), points[4].y-longueur*sin(120))) # \
 		self.points = points;
 
+		self.centre = Point((points[0].x+points[3].x)/2,(points[0].y+points[3].y)/2)
+
 	# tracer l'Hexagone sur le canvas
 	def tracer(self,canvas):
-		canvas.create_polygon(self.points[0].x,self.points[0].y, self.points[1].x,self.points[1].y, self.points[2].x,self.points[2].y,self.points[3].x,self.points[3].y, self.points[4].x,self.points[4].y, self.points[5].x,self.points[5].y,fill= "white", outline='black')
-
+		self.trace = canvas.create_polygon(self.points[0].x,self.points[0].y, self.points[1].x,self.points[1].y, self.points[2].x,self.points[2].y,self.points[3].x,self.points[3].y, self.points[4].x,self.points[4].y, self.points[5].x,self.points[5].y,fill= "white", outline='black')
+		canvas.create_oval(self.centre.x-25,self.centre.y-25,self.centre.x+25,self.centre.y+25,fill='',outline='',activefill='#ddd')
 
 # une Grille est decrite par un ensemble de Hexagone
 class Grille:
@@ -54,33 +61,76 @@ class Grille:
 				self.hexagones[i][j].tracer(canvas)
 		for i in range(0,len(self.hexagones)):
 			#Blue
-			canvas.create_line(self.hexagones[0][i].points[0].x, self.hexagones[0][i].points[0].y, self.hexagones[0][i].points[5].x, self.hexagones[0][i].points[5].y, width=5, fill="blue")
-			canvas.create_line(self.hexagones[0][i].points[4].x, self.hexagones[0][i].points[4].y, self.hexagones[0][i].points[5].x, self.hexagones[0][i].points[5].y, width=5, fill="blue")
+			canvas.create_line(self.hexagones[0][i].points[0].x, self.hexagones[0][i].points[0].y, self.hexagones[0][i].points[5].x, self.hexagones[0][i].points[5].y, width=5, fill="#005dff")
+			canvas.create_line(self.hexagones[0][i].points[4].x, self.hexagones[0][i].points[4].y, self.hexagones[0][i].points[5].x, self.hexagones[0][i].points[5].y, width=5, fill="#005dff")
 
-			canvas.create_line(self.hexagones[-1][i].points[2].x, self.hexagones[-1][i].points[2].y, self.hexagones[-1][i].points[3].x, self.hexagones[-1][i].points[3].y, width=5, fill="blue")
-			canvas.create_line(self.hexagones[-1][i].points[1].x, self.hexagones[-1][i].points[1].y, self.hexagones[-1][i].points[2].x, self.hexagones[-1][i].points[2].y, width=5, fill="blue")
+			canvas.create_line(self.hexagones[-1][i].points[2].x, self.hexagones[-1][i].points[2].y, self.hexagones[-1][i].points[3].x, self.hexagones[-1][i].points[3].y, width=5, fill="#005dff")
+			canvas.create_line(self.hexagones[-1][i].points[1].x, self.hexagones[-1][i].points[1].y, self.hexagones[-1][i].points[2].x, self.hexagones[-1][i].points[2].y, width=5, fill="#005dff")
 
 			#Red
-			canvas.create_line(self.hexagones[i][0].points[0].x, self.hexagones[i][0].points[0].y, self.hexagones[i][0].points[1].x, self.hexagones[i][0].points[1].y, width=5, fill="red")
-			canvas.create_line(self.hexagones[i][0].points[1].x, self.hexagones[i][0].points[1].y, self.hexagones[i][0].points[2].x, self.hexagones[i][0].points[2].y, width=5, fill="red")
+			canvas.create_line(self.hexagones[i][0].points[0].x, self.hexagones[i][0].points[0].y, self.hexagones[i][0].points[1].x, self.hexagones[i][0].points[1].y, width=5, fill="#dd0000")
+			canvas.create_line(self.hexagones[i][0].points[1].x, self.hexagones[i][0].points[1].y, self.hexagones[i][0].points[2].x, self.hexagones[i][0].points[2].y, width=5, fill="#dd0000")
 
-			canvas.create_line(self.hexagones[i][-1].points[5].x, self.hexagones[i][-1].points[5].y, self.hexagones[i][-1].points[4].x, self.hexagones[i][-1].points[4].y, width=5, fill="red")
-			canvas.create_line(self.hexagones[i][-1].points[4].x, self.hexagones[i][-1].points[4].y, self.hexagones[i][-1].points[3].x, self.hexagones[i][-1].points[3].y, width=5, fill="red")
+			canvas.create_line(self.hexagones[i][-1].points[5].x, self.hexagones[i][-1].points[5].y, self.hexagones[i][-1].points[4].x, self.hexagones[i][-1].points[4].y, width=5, fill="#dd0000")
+			canvas.create_line(self.hexagones[i][-1].points[4].x, self.hexagones[i][-1].points[4].y, self.hexagones[i][-1].points[3].x, self.hexagones[i][-1].points[3].y, width=5, fill="#dd0000")
 
-		canvas.create_line((self.hexagones[0][-1].points[4].x + self.hexagones[0][-1].points[5].x)/2, (self.hexagones[0][-1].points[4].y + self.hexagones[0][-1].points[5].y)/2, self.hexagones[0][-1].points[4].x, self.hexagones[0][-1].points[4].y, width=5, fill="red")
-		canvas.create_line((self.hexagones[-1][0].points[1].x + self.hexagones[-1][0].points[2].x)/2, (self.hexagones[-1][0].points[1].y + self.hexagones[-1][0].points[2].y)/2, self.hexagones[-1][0].points[2].x, self.hexagones[-1][0].points[2].y, width=5, fill="blue")
+		canvas.create_line((self.hexagones[0][-1].points[4].x + self.hexagones[0][-1].points[5].x)/2, (self.hexagones[0][-1].points[4].y + self.hexagones[0][-1].points[5].y)/2, self.hexagones[0][-1].points[4].x, self.hexagones[0][-1].points[4].y, width=5, fill="#dd0000")
+		canvas.create_line((self.hexagones[-1][0].points[1].x + self.hexagones[-1][0].points[2].x)/2, (self.hexagones[-1][0].points[1].y + self.hexagones[-1][0].points[2].y)/2, self.hexagones[-1][0].points[2].x, self.hexagones[-1][0].points[2].y, width=5, fill="#005dff")
+
+	# trouver l'hexagone correspondant à l'aide la distance entre le centre d'un hexagone et la zone cliquee
+	def trouver(self,p):
+		i, j =0, 0
+		distMin = self.hexagones[0][0].centre.distance(p)
+		for a in range(N):
+			for b in range(N):
+				if (self.hexagones[a][b].centre.distance(p) < distMin):
+					i,j = a,b
+					distMin = self.hexagones[a][b].centre.distance(p)
+		return self.hexagones[i][j]
+
+	# placer un pion d'une certaine couleur sur l'hexagone passe en parametre
+	def placer(self,couleur,hexagone,canvas):
+		p = hexagone.centre
+		canvas.create_oval(p.x-25, p.y-25, p.x+25, p.y+25, fill=couleur,outline='')
+
+class Jeu:
+	def __init__(self,grille):
+		self.grille = grille
+		self.tourActuel = 0
+
+	# commencer une partie
+	def commencer(self):
+		global canvas
+		self.grille.tracer(canvas)
+		canvas.bind("<Button-1>",self.jouer)	
+		canvas.pack()
+
+	# placer un pion
+	def jouer(self,event):
+		p = Point(event.x,event.y)
+		global canvas
+		hexagone = self.grille.trouver(p)
+		# Red
+		if (self.tourActuel == 0):
+			self.grille.placer("#dd0000",hexagone,canvas)
+			self.tourActuel = 1
+		# Blue
+		else:
+			self.grille.placer("#005dff",hexagone,canvas)
+			self.tourActuel = 0
 
 class Main:
 	def __init__(self):
 		fenetre = Tk(className="Jeu de Hex")
 		fenetre.resizable(width=False, height=False)
-
+		global canvas
 		canvas = Canvas(fenetre, width=1080, height=750, background='#ddd')
 
-		Gr = Grille(Point(10,30),11,40)
-		Gr.tracer(canvas)
+		global jeu
+		jeu = Jeu(Grille(Point(10,30),11,40))
+		jeu.commencer()
 
-		canvas.pack()
 		fenetre.mainloop()
+
 
 Main()
