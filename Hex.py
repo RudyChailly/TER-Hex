@@ -1,7 +1,10 @@
 from tkinter import*
 from math import*
 
+# Variables globales
 N = 11
+rayonPion = 25
+canvas = 0
 
 #un Point est decrit par ses coordonnes X et Y
 class Point:
@@ -38,7 +41,7 @@ class Hexagone:
 	# tracer l'Hexagone sur le canvas
 	def tracer(self,canvas):
 		self.trace = canvas.create_polygon(self.points[0].x,self.points[0].y, self.points[1].x,self.points[1].y, self.points[2].x,self.points[2].y,self.points[3].x,self.points[3].y, self.points[4].x,self.points[4].y, self.points[5].x,self.points[5].y,fill= "white", outline='black')
-		canvas.create_oval(self.centre.x-25,self.centre.y-25,self.centre.x+25,self.centre.y+25,fill='',outline='',activefill='#ddd')
+		canvas.create_oval(self.centre.x-rayonPion,self.centre.y-rayonPion,self.centre.x+rayonPion,self.centre.y+rayonPion,fill='',outline='',activefill='#ddd')
 
 # une Grille est decrite par un ensemble de Hexagone
 class Grille:
@@ -86,12 +89,14 @@ class Grille:
 				if (self.hexagones[a][b].centre.distance(p) < distMin):
 					i,j = a,b
 					distMin = self.hexagones[a][b].centre.distance(p)
-		return self.hexagones[i][j]
+				if (distMin <= rayonPion):
+					return self.hexagones[i][j]
+
 
 	# placer un pion d'une certaine couleur sur l'hexagone passe en parametre
 	def placer(self,couleur,hexagone,canvas):
 		p = hexagone.centre
-		canvas.create_oval(p.x-25, p.y-25, p.x+25, p.y+25, fill=couleur,outline='')
+		canvas.create_oval(p.x-rayonPion, p.y-rayonPion, p.x+rayonPion, p.y+rayonPion, fill=couleur,outline='')
 
 class Jeu:
 	def __init__(self,grille):
