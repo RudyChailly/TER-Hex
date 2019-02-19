@@ -22,9 +22,9 @@ class Graphe:
             self.ajouter(graphe.sommets.pop())
         
         if self.couleur == BLEU:
-            if self.bord == (B_HAUT_BLEU | B_BAS_BLEU):
+            if (self.bord & (B_HAUT_BLEU | B_BAS_BLEU)) == B_HAUT_BLEU + B_BAS_BLEU:
                 print("Le joueur bleu a gagné!");
         elif self.couleur == ROUGE:
-            if self.bord == (B_GAUCHE_ROUGE | B_DROIT_ROUGE):
+            if (self.bord & (B_GAUCHE_ROUGE | B_DROIT_ROUGE)) == B_GAUCHE_ROUGE + B_DROIT_ROUGE:
                 print("Le joueur rouge a gagné!");
             
