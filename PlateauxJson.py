@@ -1,6 +1,7 @@
 from math import *;
 
 import os
+import json
 
 LIBRE = 0
 ROUGE = 1
@@ -11,8 +12,8 @@ def genFile(n):
 	path = "./plateaux"
 	filename = "P"+str(n)+".txt";
 	if not os.path.exists(path):
-		os.makedirs(path);
-	fd = open(os.path.join(path, filename), "w");
+		os.makedirs(path);	
+	fd = open(os.path.join(path, filename), "w")
 	return fd;
 
 def voisins(n):
@@ -97,6 +98,9 @@ class Plateau():
 		else:
 			return BLEU
 
+	def toDict(self):
+		return {"t" : self.tour, "g" : self.gagnant, "s" : self.suivants}
+
 
 	# Parcours en profondeur d'un bord à l'autre
 	def victoire(self):
@@ -133,13 +137,13 @@ class Plateau():
 				AT.append(y)
 		return 0
 
-	def ecrireFichier(self,fd):
-		fd.write(self.__str__())
-
 N = int(input("Taille de la grille:"))
 voisins = voisins(N) #On calcule la liste des voisins (sommets adjacents, qu'importe la couleur) de chacun des sommets
 
 format = "%0"+str(N*N)+"d" #Permet de forcer l'affichage d'un nombre en (N*N) chiffres
+
+def ecrireFichier(fd,plateau):
+	fd.write(json.dumps(plateau))
 
 #On crée la liste globale des plateaux qu'on initialise avec le plateau vide.
 plateaux = {}
@@ -147,5 +151,13 @@ plateaux[format % 0] = Plateau(format % 0,ROUGE)
 
 fd = genFile(N)
 
+dictio = {}
 for i in plateaux:
-	plateaux[i].ecrireFichier(fd)
+	dictio[plateaux[i].code] = plateaux[i].toDict()
+ecrireFichier(fd,dictio)
+
+fd.close()
+
+with open("./plateaux/P2.txt") as json_file:
+	data = json.load(json_file)
+	print(data['0010'])

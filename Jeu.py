@@ -1,3 +1,5 @@
+import json
+
 from tkinter import*
 
 from Grille import *
@@ -11,11 +13,15 @@ from Graphe import *
 class Jeu:
     def __init__(self):
         n = 0
-        while (n < 3 or n > 11):
+        while (n < 2 or n > 11):
             n = int(input("Entrer la dimension de la grille (entre 3 et 11) : "))
             
         self.taille = n
-            
+        
+        self.plateaux = {}
+        with open("./plateaux/P"+str(self.taille)+".txt") as json_file:
+            self.plateaux =  json.load(json_file)
+
         #matrice de sommets utilisée dans les graphes et taille n*n
         self.matriceSommets = []
         
@@ -61,11 +67,21 @@ class Jeu:
                     self.matriceSommets[x][y].ajVoisin(self.matriceSommets[x][y+1])
         
         self.grille = Grille(Point(10,30),self.taille,40,self.matriceSommets)
-        self.tourActuel = 0
+        self.tourActuel = ROUGE
         self.canvas = 0;
+
+    def code(self):
+        code = list()
+        for x in range(len(self.matriceSommets)):
+            for y in range(len(self.matriceSommets[x])):
+                code.append(self.matriceSommets[x][y].couleur)
+        
+        code = ''.join(map(str,code))
+        return code
 
     # commencer une partie
     def commencer(self):
+
         fenetre = Tk(className="Jeu de Hex")
         fenetre.resizable(width=False, height=False)
         self.canvas = Canvas(fenetre, width=self.grille.taille*100, height=self.grille.taille*67 + 30, background='#ddd')
@@ -73,16 +89,17 @@ class Jeu:
         self.grille.tracer(self.canvas)
         self.canvas.bind("<Button-1>",self.jouer)    
         self.canvas.pack()
-
+        self.jouerIA()
         fenetre.mainloop()
+        
 
     # placer un pion
     def jouer(self,event):
         p = Point(event.x,event.y)
         hexagone = self.grille.trouver(p)
         if((hexagone is not None) and (hexagone.choixHex == False)) :
-            # Red
-            if (self.tourActuel == 0):
+            # Red = IA
+            if (self.tourActuel == ROUGE):
                 hexagone.sommet.jouer(ROUGE)
                 self.grille.placer(ROUGE,hexagone,self.canvas)
                 self.tourActuel = BLEU
@@ -91,6 +108,29 @@ class Jeu:
                 hexagone.sommet.jouer(BLEU)
                 self.grille.placer(BLEU,hexagone,self.canvas)
                 self.tourActuel = ROUGE
+                self.jouerIA()
             hexagone.choixHex = True
+
+    # placer un pion
+    def jouer2(self,hexagone):
+        if((hexagone is not None) and (hexagone.choixHex == False)) :
+            # Red = IA
+            if (self.tourActuel == ROUGE):
+                hexagone.sommet.jouer(ROUGE)
+                self.grille.placer(ROUGE,hexagone,self.canvas)
+                self.tourActuel = BLEU
+            # Blue
+            else:
+                hexagone.sommet.jouer(BLEU)
+                self.grille.placer(BLEU,hexagone,self.canvas)
+                self.tourActuel = ROUGE
+                self.jouerIA()
+            hexagone.choixHex = True
+
+    def jouerIA(self):
+        for p in self.plateaux[self.code()]["s"]:
+            if (self.plateaux[self.plateaux[self.code()]["s"][p]]["g"] == ROUGE):
+                self.jouer2(self.grille.matriceHexagones[int(p)//self.taille][int(p)%self.taille])
+                return p
 
 Jeu().commencer()
