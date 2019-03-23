@@ -1,8 +1,6 @@
-from Constante import *
-
 from Graphe import *
 
-#un Pion est decrit par ses coordonnes X et Y dans une matrice
+#un Sommet est decrit par ses coordonnes X et Y dans une matrice
 class Sommet:
     def __init__(self,x,y):
         self.x = x
@@ -11,16 +9,16 @@ class Sommet:
         self.graphe = None
         self.listeVoisin = []
         
-    def addToGraph(self, graph):
-        self.graphe = graph
-        self.couleur = graph.couleur
+    def setGraphe(self, graphe):
+        self.graphe = graphe
+        self.couleur = graphe.couleur
         
-    def ajVoisin(self, voisin):
+    def ajoutVoisin(self, voisin):
         self.listeVoisin.append(voisin)
         
     def jouer(self,couleur):
         if self.graphe == None:
-            Graphe(couleur,B_NO).ajouter(self)
+            Graphe(couleur,B_NO).ajoutSommet(self)
         elif self.graphe.couleur == LIBRE:
             self.graphe.couleur = couleur
             self.couleur = couleur
