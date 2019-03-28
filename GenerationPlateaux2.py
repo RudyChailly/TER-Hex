@@ -7,9 +7,6 @@ LIBRE = 0
 ROUGE = 1
 BLEU = 2
 
-voisins = []
-plateaux = {}
-
 # Recuperer le fichier et, s'il n'existe pas, le creer
 def genFile(n):
 	path = "./plateaux"
@@ -19,12 +16,12 @@ def genFile(n):
 	fd = open(os.path.join(path, filename), "w")
 	return fd;
 
-def voisin(n):
+def voisins(n):
 	# voisins[n*n] : Bord Bleu Haut
 	# voisins[n*n+1] : Bord Bleu Bas
 	# voisins[n*n+2] : Bord Rouge Gauche
 	# voisins[n*n+3] : Bord Rouge Droite
-	global voisins
+	voisins = []
 	for i in range(n*n+4):
 		voisins.append([])
 
@@ -149,21 +146,18 @@ class Plateau():
 			res = res + int(self.code[i])*pow(3,i)
 		return int(res)
 
-	def json(self):
-		global plateaux
-		dictio = {}
-		for i in plateaux:
-			if (len(plateaux[i].suivants) != 0):
-				dictio[str(plateaux[i].toInt())] = plateaux[i].toDict()
-		return dictio
+N = int(input("Taille de la grille:"))
+voisins = voisins(N) #On calcule la liste des voisins (sommets adjacents, qu'importe la couleur) de chacun des sommets
 
-
+format = "%0"+str(N*N)+"d" #Permet de forcer l'affichage d'un nombre en (N*N) chiffres
 
 def ecrireFichier(fd,plateau):
 	fd.write(json.dumps(plateau))
 
+#On crée la liste globale des plateaux qu'on initialise avec le plateau vide.
+plateaux = {}
+plateaux[format % 0] = Plateau(format % 0,ROUGE) 
 
-"""
 fd = genFile(N)
 
 dictio = {}
@@ -173,4 +167,3 @@ for i in plateaux:
 ecrireFichier(fd,dictio)
 
 fd.close()
-"""

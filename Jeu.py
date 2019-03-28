@@ -6,6 +6,8 @@ from tkinter.filedialog import *
 
 import time
 
+from random import *
+
 from Grille import *
 
 from Constante import *
@@ -13,6 +15,8 @@ from Constante import *
 from Sommet import *
 
 from Graphe import *
+
+from GenerationPlateaux import *
 
 class Jeu:
     def __init__(self):
@@ -23,9 +27,10 @@ class Jeu:
         self.menu()
 
         self.plateaux = {}
-        with open("./plateaux/P"+str(self.taille)+".txt") as json_file:
-            self.plateaux =  json.load(json_file)
-
+        if (self.taille <= 3):
+            with open("./plateaux/P"+str(self.taille)+".txt") as json_file:
+                self.plateaux = json.load(json_file)
+        self.coups = 0;
         #matrice de sommets utilisée dans les graphes et taille n*n
         self.matriceSommets = []
         
@@ -156,6 +161,13 @@ class Jeu:
         
     # retourner le code correspondant au plateau actuel
     def code(self):
+        code = 0
+        for x in range(len(self.matriceSommets)):
+            for y in range(len(self.matriceSommets[x])):
+                code = code + self.matriceSommets[x][y].couleur*pow(3,x*self.taille + y)
+        return str(int(code))
+
+    def codeBase10(self):
         code = list()
         for x in range(len(self.matriceSommets)):
             for y in range(len(self.matriceSommets[x])):
@@ -177,29 +189,46 @@ class Jeu:
                     self.tourActuel = ROUGE
 
                 hexagone.choixHex = True
-
+                self.coups = self.coups + 1
                 if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
                     self.fenetre.after(1000,self.jouerIA)
 
     def jouerIA(self):
         if (self.joueurs[self.tourActuel] == 1):
-            s = self.plateaux[self.code()]["s"]
-            if (s is not None):
-                s = int(s)
-                hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
-                hexagone.sommet.jouer(self.tourActuel)
-                self.grille.placer(self.tourActuel,hexagone,self.canvas)
-
-                if (self.tourActuel == ROUGE):
-                    self.tourActuel = BLEU
+            if (self.coups >= (self.taille*self.taille - 10)):
+                s = self.plateaux[self.code()]
+                if (s is not None):
+                    s = int(s)
+                    hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                    self.coups = self.coups + 1
                 else:
-                    self.tourActuel = ROUGE
+                    return False
+            else:
+                s = randint(0,(self.taille*self.taille)-1)
+                hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                while (hexagone.choixHex == True):
+                    s = randint(0,(self.taille*self.taille)-1)
+                    hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                self.coups = self.coups + 1
+                if (self.coups == (self.taille*self.taille - 12)):
+                    voisin(self.taille)
+                    self.plateaux = Plateau(self.codeBase10(),self.tourActuel).json()
 
-                hexagone.choixHex = True
+            hexagone.sommet.jouer(self.tourActuel)
+            self.grille.placer(self.tourActuel,hexagone,self.canvas)
 
-                if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
-                    self.fenetre.after(1000,self.jouerIA)
+            if (self.tourActuel == ROUGE):
+                self.tourActuel = BLEU
+            else:
+                self.tourActuel = ROUGE
 
-                return s
+            hexagone.choixHex = True
+
+            
+
+            if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
+                self.fenetre.after(1000,self.jouerIA)
+
+            return s
 
 Jeu()
