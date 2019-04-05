@@ -11,9 +11,9 @@ voisins = []
 plateaux = {}
 
 # Recuperer le fichier et, s'il n'existe pas, le creer
-def genFile(n):
-	path = "./plateaux"
-	filename = "P"+str(n)+".txt";
+def genFile(n,code):
+	path = "./plateaux/"+str(n)
+	filename = code+".txt";
 	if not os.path.exists(path):
 		os.makedirs(path);	
 	fd = open(os.path.join(path, filename), "w")
@@ -65,6 +65,9 @@ def voisin(n):
 class Plateau():
 	
 	def __init__(self,code,tour):
+		global plateaux
+		plateaux[code] = self
+
 		self.code = code
 		self.tour = tour
 		self.gagnant = self.victoire()
@@ -85,7 +88,7 @@ class Plateau():
 				codeP = "".join(codeP) #Re-transforme le nouveau code obtenu en chaine de caractere
 				self.suivants[i] = codeP #Ajoute le plateau à la liste de suivants
 				if (not(codeP in plateaux)):
-					plateaux[codeP] = Plateau(codeP,(self.tour%2)+1)
+					Plateau(codeP,(self.tour%2)+1)
 
 	def algoGagnant(self):
 		global plateaux
@@ -156,8 +159,6 @@ class Plateau():
 			if (len(plateaux[i].suivants) != 0):
 				dictio[str(plateaux[i].toInt())] = plateaux[i].toDict()
 		return dictio
-
-
 
 def ecrireFichier(fd,plateau):
 	fd.write(json.dumps(plateau))
