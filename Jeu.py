@@ -19,6 +19,7 @@ from Graphe import *
 from GenerationPlateaux import *
 
 class Jeu:
+
     def __init__(self):
         
         self.taille = None
@@ -153,26 +154,30 @@ class Jeu:
         global oval
         self.fenetre = Tk(className="Jeu de Hex")
         self.fenetre.resizable(width=False, height=False)
-        self.canvas = Canvas(self.fenetre, width=self.grille.taille*100, height=self.grille.taille*67 + 30, background='#ddd')
+        FrameGrille = Frame(self.fenetre,relief=GROOVE)
+        self.canvas = Canvas(FrameGrille, width=self.grille.taille*100, height=self.grille.taille*67 + 30, background='#ddd')
 
         self.grille.tracer(self.canvas)
         self.canvas.bind("<Button-1>",self.jouer)    
         self.canvas.pack()
         self.fenetre.after(1000,self.jouerIA)
-        #retryButton = Button(self.fenetre, text="Recommencer", command=lambda: self.retry())
-        #retryButton.pack()
-        newGameButton = Button(self.fenetre, text="Nouvelle partie", command=lambda: self.newGame())
-        newGameButton.pack()
+        FrameOptions = Frame(self.fenetre,relief=GROOVE)
+        nouvPartieButton = Button(FrameOptions, text="Nouv. partie", command=lambda: self.nouvPartie())
+        nouvPartieButton.grid(row=0,column=0,padx=10,pady=10)
+        quitterButton = Button(FrameOptions, text="Quitter", fg='red', command=self.fenetre.destroy)
+        quitterButton.grid(row=0,column=2,padx=10,pady=10)
 
-        canvasTour = Canvas(self.fenetre, width=200, height=100)
-        canvasTour.pack()
-        oval= canvasTour.create_oval(10,10,70,70,width=2,fill='red')
+        canvasTour = Canvas(FrameOptions, width=40, height=40)
+        oval= canvasTour.create_oval(10,10,30,30,width=2,fill=COULEUR_ROUGE,outline='')
+        canvasTour.grid(row=0,column=1,pady=10)
         
+        FrameGrille.pack(side=TOP)
+        FrameOptions.pack(side=BOTTOM)
         self.fenetre.mainloop()
 
 
     #Créer une nouvelle partie (réglages différents)
-    def newGame(self):
+    def nouvPartie(self):
         
         self.fenetre.destroy()
         Graphe.gagnant = ""
@@ -180,21 +185,24 @@ class Jeu:
         Jeu()
 
         
-    def winner(self):
+    def estGagnant(self):
 
         if(Graphe.gagnant=="ROUGE"):
             canvasTour.delete(oval)
-            messageWinner = Label(canvasTour,text="VAINQUEUR : ROUGE",fg=COULEUR_ROUGE, font="Arial 15")
-            messageWinner.pack()
+            showinfo('Victoire','Le joueur rouge a gagné.')
             self.canvas.unbind("<Button-1>") 
             Graphe.gagnant = ""
+            self.tourActuel = -1
+            return ROUGE
             
         elif(Graphe.gagnant=="BLEU"):
             canvasTour.delete(oval)
-            messageWinner = Label(canvasTour,text="VAINQUEUR : BLEU",fg=COULEUR_BLEU, font="Arial 15")
-            messageWinner.pack()
+            showinfo('Victoire','Le joueur bleu a gagné.')
             self.canvas.unbind("<Button-1>") 
             Graphe.gagnant = ""
+            self.tourActuel = -1
+            return BLEU
+        return False
 
     # Recuperer le fichier et, s'il n'existe pas, le creer
     def genFile(self):
@@ -210,10 +218,15 @@ class Jeu:
 
         
     def tourSuivant(self):
+        global canvasTour
+        global oval
+        canvasTour.delete(oval)
         if (self.tourActuel == ROUGE):
             self.tourActuel = BLEU
+            oval = canvasTour.create_oval(10,10,30,30,width=2,fill=COULEUR_BLEU,outline='')
         else:
             self.tourActuel = ROUGE
+            oval = canvasTour.create_oval(10,10,30,30,width=2,fill=COULEUR_ROUGE,outline='')
 
     def genererPlateaux(self):
         if (not (os.path.isfile("./plateaux/"+str(self.taille)+"/"+self.code()+".txt"))):
@@ -249,25 +262,15 @@ class Jeu:
             if((hexagone is not None) and (hexagone.choixHex == False)) :
                 hexagone.sommet.jouer(self.tourActuel)
                 self.grille.placer(self.tourActuel,hexagone,self.canvas)
-
-                if (self.tourActuel == ROUGE):
-
-                    canvasTour.delete(oval)
-                    oval = canvasTour.create_oval(10,10,70,70,width=2,fill='blue')
-
-                else:
-
-                    canvasTour.delete(oval)                  
-                    oval = canvasTour.create_oval(10,10,70,70,width=2,fill='red')
                                         
                 hexagone.choixHex = True
                 self.coups = self.coups + 1
 
                 self.tourSuivant()
-                if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
-                    self.fenetre.after(1000,self.jouerIA)
-        self.winner()
-
+                gagnant = self.estGagnant()
+                if (not gagnant):
+                    if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
+                        self.fenetre.after(1000,self.jouerIA)
 
     def jouerIA(self):
         global canvasTour
@@ -295,22 +298,14 @@ class Jeu:
 
             hexagone.sommet.jouer(self.tourActuel)
             self.grille.placer(self.tourActuel,hexagone,self.canvas)
-
-            if (self.tourActuel == ROUGE):
-                canvasTour.delete(oval)
-                oval = canvasTour.create_oval(10,10,70,70,width=2,fill='blue')
-            else:
-                canvasTour.delete(oval)                  
-                oval = canvasTour.create_oval(10,10,70,70,width=2,fill='red')
-
             hexagone.choixHex = True
 
             self.coups = self.coups + 1
             self.tourSuivant()
 
-            if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
-                self.fenetre.after(1000,self.jouerIA)
-            self.winner()
-            return s
+            gagnant = self.estGagnant()
+            if (not gagnant):
+                if (self.joueurs[self.tourActuel] == 1): #Si le prochain tour est un IA, le lancer
+                    self.fenetre.after(1000,self.jouerIA)
 
 Jeu()
