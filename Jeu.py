@@ -227,14 +227,18 @@ class Jeu:
         else:
             self.tourActuel = ROUGE
             oval = canvasTour.create_oval(10,10,30,30,width=2,fill=COULEUR_ROUGE,outline='')
-
+            
     def genererPlateaux(self):
-        if (not (os.path.isfile("./plateaux/"+str(self.taille)+"/"+self.code()+".txt"))):
+        if (not (os.path.isfile("./plateaux/"+str(self.taille)+"/"+str(self.coups)+".txt"))):
             voisin(self.taille)
-            self.plateaux = Plateau(self.codeBase10(),self.tourActuel).json()
-            ecrireFichier(genFile(self.taille,self.code()),self.plateaux)
-        with open("./plateaux/"+str(self.taille)+"/"+self.code()+".txt") as json_file:
+            self.plateaux = Plateau(self.codeBase10(),self.tourActuel,self.coups).json(self.coups,self.taille)
+            ecrireFichier(genFile(self.taille,self.coups),self.plateaux)
+        with open("./plateaux/"+str(self.taille)+"/"+str(self.coups)+".txt") as json_file:
             self.plateaux = json.load(json_file)
+            if(not self.code() in self.plateaux):
+                self.plateaux.update(Plateau(self.codeBase10(),self.tourActuel,self.coups).json(self.coups,self.taille))
+                ecrireFichier(genFile(self.taille,self.coups),self.plateaux)
+            
 
     # retourner le code correspondant au plateau actuel
     def code(self):
@@ -279,15 +283,21 @@ class Jeu:
         if (self.joueurs[self.tourActuel] == 1):
             if (self.taille <= 4 or self.coups >= (self.taille*self.taille - 12)):
 
-                if ((not(self.code() in self.plateaux)) or (self.plateaux[self.code()] is None)):
+                if (not(self.code() in self.plateaux)):
                     self.genererPlateaux()
                 
-                s = self.plateaux[self.code()]
-                if (s is None):
-                    return False
-                else :
-                    s = int(s)
+                if (self.code() in self.plateaux):
+                    s = int(self.plateaux[self.code()])
                     hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                    while (hexagone.choixHex == True):
+                        s = randint(0,(self.taille*self.taille)-1)
+                        hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                else :
+                    s = randint(0,(self.taille*self.taille)-1)
+                    hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
+                    while (hexagone.choixHex == True):
+                        s = randint(0,(self.taille*self.taille)-1)
+                        hexagone = self.grille.matriceHexagones[s//self.taille][s%self.taille]
 
             else:
                 s = randint(0,(self.taille*self.taille)-1)

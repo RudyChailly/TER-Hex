@@ -13,7 +13,7 @@ plateaux = {}
 # Recuperer le fichier et, s'il n'existe pas, le creer
 def genFile(n,code):
 	path = "./plateaux/"+str(n)
-	filename = code+".txt";
+	filename = str(code)+".txt";
 	if not os.path.exists(path):
 		os.makedirs(path);	
 	fd = open(os.path.join(path, filename), "w")
@@ -64,12 +64,13 @@ def voisin(n):
 
 class Plateau():
 	
-	def __init__(self,code,tour):
+	def __init__(self,code,tour,nbTours):
 		global plateaux
 		plateaux[code] = self
 
 		self.code = code
 		self.tour = tour
+		self.nbTours = nbTours
 		self.gagnant = self.victoire()
 		self.suivants = {}
 		if (self.gagnant == 0): #Si le plateau n'est pas déjà gagnant
@@ -88,7 +89,7 @@ class Plateau():
 				codeP = "".join(codeP) #Re-transforme le nouveau code obtenu en chaine de caractere
 				self.suivants[i] = codeP #Ajoute le plateau à la liste de suivants
 				if (not(codeP in plateaux)):
-					Plateau(codeP,(self.tour%2)+1)
+					Plateau(codeP,(self.tour%2)+1,self.nbTours+1)
 
 	def algoGagnant(self):
 		global plateaux
@@ -152,12 +153,23 @@ class Plateau():
 			res = res + int(self.code[i])*pow(3,i)
 		return int(res)
 
-	def json(self):
+	def json(self,tourCourant,n):
 		global plateaux
 		dictio = {}
 		for i in plateaux:
-			if (len(plateaux[i].suivants) != 0):
+			if ((len(plateaux[i].suivants) != 0) and (plateaux[i].nbTours == tourCourant)):
 				dictio[str(plateaux[i].toInt())] = plateaux[i].toDict()
+		for tourTemp in range(tourCourant, n*n):
+			writingTempDictio = {}
+			for i in plateaux:
+				if ((len(plateaux[i].suivants) != 0) and (plateaux[i].nbTours == tourTemp)):
+					writingTempDictio[str(plateaux[i].toInt())] = plateaux[i].toDict()
+			if (not (os.path.isfile("./plateaux/"+str(n)+"/"+str(tourTemp)+".txt"))):
+				ecrireFichier(genFile(n,tourTemp),writingTempDictio)
+			else:
+				with open("./plateaux/"+str(n)+"/"+str(tourTemp)+".txt") as json_file:
+					writingTempDictio.update(json.load(json_file))
+					ecrireFichier(genFile(n,tourTemp),writingTempDictio)
 		return dictio
 
 def ecrireFichier(fd,plateau):
