@@ -1,21 +1,22 @@
 from Graphe import *
 
-#un Sommet est decrit par ses coordonnes X et Y dans une matrice
+#un Sommet est decrit par ses coordonnes i et j dans une matrice
 class Sommet:
-    def __init__(self,x,y):
-        self.x = x
-        self.y = y
+    def __init__(self):
         self.couleur = LIBRE
         self.graphe = None
         self.listeVoisin = []
         
+    # associer un Graphe a un Sommet  
     def setGraphe(self, graphe):
         self.graphe = graphe
         self.couleur = graphe.couleur
         
+    # ajouter un Sommet a la liste de voisins  
     def ajoutVoisin(self, voisin):
         self.listeVoisin.append(voisin)
         
+    # changer la couleur d'un Sommet et le fusioner avec les graphes voisins
     def jouer(self,couleur):
         if self.graphe == None:
             Graphe(couleur,B_NO).ajoutSommet(self)

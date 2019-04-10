@@ -6,6 +6,7 @@ class Point:
         self.x = x
         self.y = y
     
+    # calculer la distance entre 2 points
     def distance(self,p):
         return sqrt(pow((self.x - p.x),2) + pow((self.y - p.y),2))
 
