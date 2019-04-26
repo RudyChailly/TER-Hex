@@ -2,7 +2,7 @@
 ## Introduction au jeu
 Le jeu de Hex est un jeu de société combinatoire abstrait pour deux joueurs se jouant sur une grille en forme de losange dont les cases sont hexagonales.
 
-Chaque joueur est représenté par une couleur et possède des pions qu'ils dispose tour à tour, un par un, sur une case de son choix. 
+Chaque joueur est représenté par une couleur et possède des pions qu'il dispose tour à tour, un par un, sur une case de son choix. 
 L'objectif est de relier les deux côtés opposés de sa couleur sur la grille. 
 
 Inventé par des mathématiciens, ce jeu fait uniquement appel à la logique et est ainsi étudié dans diverses branches mathématiques comme la théorie des jeux, la topologie ou encore la géométrie algébrique.
@@ -18,7 +18,7 @@ https://www.python.org/downloads/
 Il suffit de télécharger la source au format ZIP et de la décompresser.
 
 ## Exécution
-Le fichier a exécuter est Jeu.py
+Le fichier à exécuter est Jeu.py
 
 ```
 python3 Jeu.py
